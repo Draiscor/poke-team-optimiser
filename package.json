@@ -1,7 +1,8 @@
 {
 	"name": "poke-team-optimiser",
-	"private": true,
 	"version": "0.0.0",
+	"private": true,
+	"homepage": "https://draiscor.github.io/poke-team-optimiser/",
 	"type": "module",
 	"scripts": {
 		"dev": "vite",
@@ -11,7 +12,7 @@
 		"compile": "graphql-codegen",
 		"watch": "graphql-codegen -w",
 		"predeploy": "npm run build",
-		"deploy": "gh-pages -d build"
+		"deploy": "gh-pages -d dist"
 	},
 	"dependencies": {
 		"@apollo/client": "^3.8.1",

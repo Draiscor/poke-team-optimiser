@@ -2,7 +2,7 @@
 	"name": "poke-team-optimiser",
 	"version": "0.0.0",
 	"private": true,
-	"homepage": "https://draiscor.github.io/poke-team-optimiser/",
+	"homepage": "https://draiscor.github.io/poke-team-optimiser",
 	"type": "module",
 	"scripts": {
 		"dev": "vite",

@@ -4,6 +4,7 @@ import {
 	CardContent,
 	CardHeader,
 	Stack,
+	Typography,
 } from "@mui/material";
 import { useState } from "react";
 import { Pokemon } from "../definitions";
@@ -40,6 +41,13 @@ function PokeCard(props: Props) {
 							<TypePill key={theType.id} myType={theType} />
 						))}
 					</Stack>
+					{!pokemon.evolvesFrom ? null : (
+						<Typography variant="body1" sx={{ mt: 1 }}>
+							{`Evolves from ${pokemon.evolvesFrom
+								.toString()
+								.padStart(3, "0")}`}
+						</Typography>
+					)}
 				</CardContent>
 			</CardActionArea>
 		</Card>

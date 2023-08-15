@@ -8,6 +8,7 @@ import {
 } from "@mui/material";
 import { useState } from "react";
 import { Pokemon } from "../definitions";
+import { getPokeImg } from "../utils";
 import TypePill from "./TypePill";
 
 type Props = {
@@ -21,21 +22,27 @@ function PokeCard(props: Props) {
 	return (
 		<Card
 			elevation={3}
-			sx={{ border: caught ? "5px solid blue" : "", minWidth: 150 }}
+			sx={{
+				border: caught ? "5px solid blue" : "",
+				minWidth: 150,
+				minHeight: 305,
+			}}
 		>
 			<CardActionArea onClick={() => setCaught((current) => !current)}>
 				<CardHeader
 					sx={{ textAlign: "left" }}
 					title={`${pokemon.name[0].toUpperCase()}${pokemon.name.slice(1)}`}
 					subheader={pokemon.id.toString().padStart(3, "0")}
+					avatar={
+						pokemon.legendary ? (
+							<img height="50" src="/legendary.svg" />
+						) : pokemon.mythic ? (
+							<img height="50" src="/mythic.svg" />
+						) : null
+					}
 				/>
-				{/* <CardMedia
-					component="img"
-					height="194"
-					src={`https://pokeapi.co${pokemon.sprites.frontDefault}`}
-					alt={`${pokemon.name} Sprite`}
-				/> */}
 				<CardContent>
+					<img src={getPokeImg(pokemon.id)} height="100" width="auto" />
 					<Stack direction="row" spacing={3} justifyContent="center">
 						{pokemon.types.map((theType) => (
 							<TypePill key={theType.id} myType={theType} />
@@ -46,6 +53,11 @@ function PokeCard(props: Props) {
 							{`Evolves from ${pokemon.evolvesFrom
 								.toString()
 								.padStart(3, "0")}`}
+							<img
+								src={getPokeImg(pokemon.evolvesFrom)}
+								height="35"
+								width="auto"
+							/>
 						</Typography>
 					)}
 				</CardContent>

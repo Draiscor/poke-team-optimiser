@@ -31,8 +31,8 @@ function PokeCard(props: Props) {
 				elevation={3}
 				sx={{
 					border: caught ? "5px solid blue" : "",
-					minWidth: 150,
-					minHeight: 320,
+					minWidth: "inherit",
+					minHeight: "inherit",
 				}}
 			>
 				<CardHeader

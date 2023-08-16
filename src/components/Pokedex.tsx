@@ -1,10 +1,11 @@
 import { gql, useQuery } from "@apollo/client";
-import { Paper, TextField } from "@mui/material";
+import { InputAdornment, Paper, TextField } from "@mui/material";
 import Grid from "@mui/material/Unstable_Grid2";
 import { ratio } from "fuzzball";
 import { useEffect, useState } from "react";
 import { PokeType, PokeTypeColours, Pokemon } from "../definitions";
 import PokeCard from "./PokeCard";
+import { SearchRounded } from "@mui/icons-material";
 
 type PokemonResponseData = {
 	pokemon_v2_pokemon: {
@@ -306,6 +307,14 @@ function Pokedex(props: Props) {
 				value={search}
 				onChange={(event) => setSearch(event.target.value as string)}
 				sx={{ mb: 2 }}
+				label="Search"
+				InputProps={{
+					endAdornment: (
+						<InputAdornment position="end">
+							<SearchRounded />
+						</InputAdornment>
+					),
+				}}
 			/>
 			<Grid
 				container

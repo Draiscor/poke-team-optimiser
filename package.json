@@ -2,7 +2,7 @@
 	"name": "poke-team-optimiser",
 	"version": "0.0.0",
 	"private": true,
-	"homepage": "https://draiscor.github.io/poke-team-optimiser",
+	"homepage": "https://draiscor.github.io/poke-team-optimiser/",
 	"type": "module",
 	"scripts": {
 		"dev": "vite",
@@ -23,7 +23,8 @@
 		"fuzzysort": "^2.0.4",
 		"graphql": "^16.7.1",
 		"react": "^18.2.0",
-		"react-dom": "^18.2.0"
+		"react-dom": "^18.2.0",
+		"react-router-dom": "^6.15.0"
 	},
 	"devDependencies": {
 		"@graphql-codegen/cli": "^5.0.0",

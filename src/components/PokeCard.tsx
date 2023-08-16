@@ -20,15 +20,21 @@ function PokeCard(props: Props) {
 	const [caught, setCaught] = useState<boolean>(false);
 
 	return (
-		<Card
-			elevation={3}
+		<CardActionArea
 			sx={{
-				border: caught ? "5px solid blue" : "",
 				minWidth: 150,
-				minHeight: 305,
+				minHeight: 320,
 			}}
+			onClick={() => setCaught((current) => !current)}
 		>
-			<CardActionArea onClick={() => setCaught((current) => !current)}>
+			<Card
+				elevation={3}
+				sx={{
+					border: caught ? "5px solid blue" : "",
+					minWidth: 150,
+					minHeight: 320,
+				}}
+			>
 				<CardHeader
 					sx={{ textAlign: "left" }}
 					title={`${pokemon.name[0].toUpperCase()}${pokemon.name.slice(1)}`}
@@ -61,8 +67,8 @@ function PokeCard(props: Props) {
 						</Typography>
 					)}
 				</CardContent>
-			</CardActionArea>
-		</Card>
+			</Card>
+		</CardActionArea>
 	);
 }
 

@@ -1,7 +1,7 @@
 import { gql, useQuery } from "@apollo/client";
 import { Paper, TextField } from "@mui/material";
 import Grid from "@mui/material/Unstable_Grid2";
-import fuzzysort from "fuzzysort";
+import { ratio } from "fuzzball";
 import { useEffect, useState } from "react";
 import { PokeType, PokeTypeColours, Pokemon } from "../definitions";
 import PokeCard from "./PokeCard";
@@ -277,13 +277,15 @@ function Pokedex(props: Props) {
 			setDisplayMons([...pokemon]);
 			return;
 		}
-		const results = fuzzysort.go(search, pokemon, {
-			all: true,
-			keys: ["name", "types.name"],
+		const filteredMons = pokemon.filter((mon) => {
+			const nameMatch = ratio(search, mon.name) > 60;
+			const finalMatch =
+				nameMatch ||
+				mon.types.some((monType) => ratio(search, monType.name) > 60) ||
+				(mon.legendary && ratio(search, "legendary") > 60) ||
+				(mon.mythic && ratio(search, "mythic") > 60);
+			return finalMatch;
 		});
-		const filteredMons = results
-			.filter((result) => result.score > -10)
-			.map((result) => result.obj);
 		setDisplayMons([...filteredMons]);
 	}, [pokemon, search, setDisplayMons]);
 
@@ -291,7 +293,14 @@ function Pokedex(props: Props) {
 	if (error) return `Error! ${error}`;
 
 	return (
-		<Paper sx={{ display: "flex", flexDirection: "column", height: "88vh", padding: 1 }}>
+		<Paper
+			sx={{
+				display: "flex",
+				flexDirection: "column",
+				height: "88vh",
+				padding: 1,
+			}}
+		>
 			<TextField
 				fullWidth
 				value={search}

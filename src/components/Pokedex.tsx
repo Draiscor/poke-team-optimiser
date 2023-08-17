@@ -1,11 +1,11 @@
-import { gql, useQuery } from "@apollo/client";
+import { gql, useLazyQuery, useQuery } from "@apollo/client";
+import { SearchRounded } from "@mui/icons-material";
 import { InputAdornment, Paper, TextField } from "@mui/material";
 import Grid from "@mui/material/Unstable_Grid2";
 import { ratio } from "fuzzball";
 import { useEffect, useState } from "react";
 import { PokeType, PokeTypeColours, Pokemon } from "../definitions";
 import PokeCard from "./PokeCard";
-import { SearchRounded } from "@mui/icons-material";
 
 type PokemonResponseData = {
 	pokemon_v2_pokemon: {
@@ -48,6 +48,28 @@ type PokemonResponseData = {
 					};
 				}[];
 			};
+		}[];
+	}[];
+};
+
+type RetiredTypesResponseData = {
+	pokemon_v2_pokemon: {
+		id: number;
+		pokemon_v2_pokemontypepasts: {
+			pokemon_v2_type: {
+				generation_id: number;
+				id: number;
+				name: string;
+				pokemon_v2_typeefficacies: {
+					damage_factor: number;
+					pokemonV2TypeByTargetTypeId: {
+						name: string;
+						generation_id: number;
+						id: number;
+					};
+				}[];
+			};
+			slot: number;
 		}[];
 	}[];
 };
@@ -104,6 +126,44 @@ const GET_GENERATION_POKEMON = gql`
 			) {
 				slot
 				pokemon_v2_type {
+					id
+					name
+					pokemon_v2_typeefficacies(
+						where: {
+							damage_factor: { _gt: 100 }
+							pokemonV2TypeByTargetTypeId: {
+								generation_id: { _lte: $generation }
+							}
+						}
+						order_by: {
+							damage_factor: desc
+							pokemonV2TypeByTargetTypeId: { name: asc }
+						}
+					) {
+						damage_factor
+						pokemonV2TypeByTargetTypeId {
+							name
+							generation_id
+							id
+						}
+					}
+				}
+			}
+		}
+	}
+`;
+
+const GET_PREVIOUS_POKEMON_TYPES = gql`
+	query GetPokemonRetiredTypes($ids: [Int!], $generation: Int!) {
+		pokemon_v2_pokemon(where: { id: { _in: $ids } }) {
+			id
+			pokemon_v2_pokemontypepasts(
+				where: { generation_id: { _gte: $generation } }
+				order_by: { generation_id: asc, slot: asc }
+			) {
+				slot
+				pokemon_v2_type {
+					generation_id
 					id
 					name
 					pokemon_v2_typeefficacies(
@@ -220,6 +280,10 @@ function Pokedex(props: Props) {
 	const [displayMons, setDisplayMons] = useState<Pokemon[]>([]);
 	const [search, setSearch] = useState<string>("");
 
+	const [getPreviousTypes] = useLazyQuery<RetiredTypesResponseData>(
+		GET_PREVIOUS_POKEMON_TYPES
+	);
+
 	const { loading, error } = useQuery<PokemonResponseData>(
 		GET_GENERATION_POKEMON,
 		{
@@ -231,6 +295,7 @@ function Pokedex(props: Props) {
 					const pokeSprites = JSON.parse(
 						poke.pokemon_v2_pokemonsprites[0].sprites
 					);
+
 					return {
 						evolvesFrom: poke.pokemon_v2_pokemonspecy.evolves_from_species_id,
 						gendersVary: poke.pokemon_v2_pokemonspecy.has_gender_differences,
@@ -289,6 +354,77 @@ function Pokedex(props: Props) {
 		});
 		setDisplayMons([...filteredMons]);
 	}, [pokemon, search, setDisplayMons]);
+
+	useEffect(() => {
+		const needTypeUpdates = pokemon.reduce<{ id: number; index: number }[]>(
+			(a, e, i) => {
+				if (!e.types.length) a.push({ id: e.id, index: i });
+				return a;
+			},
+			[]
+		);
+		getPreviousTypes({
+			variables: {
+				ids: needTypeUpdates.map((e) => e.id),
+				generation: generation,
+			},
+		}).then((response) => {
+			if (response.error) {
+				console.log(
+					`An error occurred when requesting previous types: ${response.error}`
+				);
+				return;
+			} else if (!response.data) {
+				console.log(`No data in the response! ${JSON.stringify(response)}`);
+				return;
+			}
+			const data = response.data;
+			const mons = [...data.pokemon_v2_pokemon];
+			const monTypes = mons.map<{ id: number; types: PokeType[] }>((mon) => {
+				return {
+					id: mon.id,
+					types: [
+						...mon.pokemon_v2_pokemontypepasts.map<PokeType>((pokeType) => {
+							return {
+								colours: TYPE_MAP[pokeType.pokemon_v2_type.id],
+								id: pokeType.pokemon_v2_type.id,
+								name: pokeType.pokemon_v2_type.name,
+								superEffective: [
+									...pokeType.pokemon_v2_type.pokemon_v2_typeefficacies.map(
+										(efficacy) => {
+											return {
+												id: efficacy.pokemonV2TypeByTargetTypeId.id,
+												name: efficacy.pokemonV2TypeByTargetTypeId.name,
+											};
+										}
+									),
+								],
+							};
+						}),
+					],
+				};
+			});
+
+			const updatedMons = [
+				...pokemon.map((mon) => {
+					const neededUpdate = needTypeUpdates.find(
+						(update) => update.id === mon.id
+					);
+					if (!neededUpdate) return mon;
+
+					const pokeTypes = monTypes.find((types) => types.id === mon.id);
+					if (!pokeTypes) return mon;
+
+					return {
+						...mon,
+						types: [...pokeTypes.types],
+					};
+				}),
+			];
+
+			setPokemon(updatedMons);
+		});
+	}, [generation, getPreviousTypes, pokemon, setPokemon]);
 
 	if (loading) return null;
 	if (error) return `Error! ${error}`;

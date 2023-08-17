@@ -1,6 +1,6 @@
 import { gql, useLazyQuery, useQuery } from "@apollo/client";
-import { SearchRounded } from "@mui/icons-material";
-import { InputAdornment, Paper, TextField } from "@mui/material";
+import { ClearRounded, SearchRounded } from "@mui/icons-material";
+import { IconButton, InputAdornment, Paper, TextField } from "@mui/material";
 import Grid from "@mui/material/Unstable_Grid2";
 import { ratio } from "fuzzball";
 import { useEffect, useState } from "react";
@@ -447,6 +447,11 @@ function Pokedex(props: Props) {
 				InputProps={{
 					endAdornment: (
 						<InputAdornment position="end">
+							{search ? (
+								<IconButton onClick={() => setSearch("")}>
+									<ClearRounded />
+								</IconButton>
+							) : null}
 							<SearchRounded />
 						</InputAdornment>
 					),

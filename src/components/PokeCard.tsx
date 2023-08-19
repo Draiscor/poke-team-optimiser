@@ -41,9 +41,14 @@ function PokeCard(props: Props) {
 					subheader={pokemon.id.toString().padStart(3, "0")}
 					avatar={
 						pokemon.legendary ? (
-							<img height="50" src="/legendary.svg" alt="legendary icon" />
+							<img
+								height="50"
+								width="50"
+								src="/legendary.svg"
+								alt="legendary icon"
+							/>
 						) : pokemon.mythic ? (
-							<img height="50" src="/mythic.svg" alt="mythic icon" />
+							<img height="50" width="50" src="/mythic.svg" alt="mythic icon" />
 						) : null
 					}
 				/>

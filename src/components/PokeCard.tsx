@@ -23,7 +23,7 @@ function PokeCard(props: Props) {
 		<CardActionArea
 			sx={{
 				minWidth: 150,
-				minHeight: 320,
+				minHeight: 385,
 			}}
 			onClick={() => setCaught((current) => !current)}
 		>
@@ -41,14 +41,19 @@ function PokeCard(props: Props) {
 					subheader={pokemon.id.toString().padStart(3, "0")}
 					avatar={
 						pokemon.legendary ? (
-							<img height="50" src="/legendary.svg" />
+							<img height="50" src="/legendary.svg" alt="legendary icon" />
 						) : pokemon.mythic ? (
-							<img height="50" src="/mythic.svg" />
+							<img height="50" src="/mythic.svg" alt="mythic icon" />
 						) : null
 					}
 				/>
 				<CardContent>
-					<img src={getPokeImg(pokemon.id)} height="100" width="auto" />
+					<img
+						src={getPokeImg(pokemon.id)}
+						alt={`${pokemon.name} art`}
+						height="150"
+						width="auto"
+					/>
 					<Stack direction="row" spacing={3} justifyContent="center">
 						{pokemon.types.map((theType) => (
 							<TypePill key={theType.id} myType={theType} />
@@ -63,6 +68,7 @@ function PokeCard(props: Props) {
 								src={getPokeImg(pokemon.evolvesFrom)}
 								height="35"
 								width="auto"
+								alt={`${pokemon.name} evolution parent art`}
 							/>
 						</Typography>
 					)}

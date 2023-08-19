@@ -52,7 +52,7 @@ function PokeCard(props: Props) {
 						src={getPokeImg(pokemon.id)}
 						alt={`${pokemon.name} art`}
 						height="150"
-						width="auto"
+						width="150"
 					/>
 					<Stack direction="row" spacing={3} justifyContent="center">
 						{pokemon.types.map((theType) => (
@@ -60,17 +60,25 @@ function PokeCard(props: Props) {
 						))}
 					</Stack>
 					{!pokemon.evolvesFrom ? null : (
-						<Typography variant="body1" sx={{ mt: 1 }}>
-							{`Evolves from ${pokemon.evolvesFrom
-								.toString()
-								.padStart(3, "0")}`}
+						<div
+							style={{
+								display: "flex",
+								justifyContent: "center",
+								marginTop: 10,
+							}}
+						>
+							<Typography variant="body1" sx={{ mt: 1 }}>
+								{`Evolves from ${pokemon.evolvesFrom
+									.toString()
+									.padStart(3, "0")}`}
+							</Typography>
 							<img
 								src={getPokeImg(pokemon.evolvesFrom)}
 								height="35"
-								width="auto"
+								width="35"
 								alt={`${pokemon.name} evolution parent art`}
 							/>
-						</Typography>
+						</div>
 					)}
 				</CardContent>
 			</Card>

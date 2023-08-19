@@ -44,7 +44,7 @@ interface Props {
 }
 
 const GET_GENERATION_POKEMON = gql`
-	query PokemonInGeneration($generation: Int!, $version: String) {
+	query PokemonInGeneration($generation: Int!) {
 		pokemon_v2_pokemon(
 			where: {
 				pokemon_v2_pokemonspecy: { generation_id: { _lte: $generation } }
@@ -212,7 +212,7 @@ const TYPE_MAP: { [ref: number]: PokeTypeColours } = {
 };
 
 function Pokedex(props: Props) {
-	const { generation, game } = props;
+	const { generation } = props;
 	const [pokemon, setPokemon] = useState<Pokemon[]>([]);
 	const [displayMons, setDisplayMons] = useState<Pokemon[]>([]);
 	const [search, setSearch] = useState<string>("");
@@ -220,7 +220,7 @@ function Pokedex(props: Props) {
 	const { loading, error } = useQuery<PokemonResponseData>(
 		GET_GENERATION_POKEMON,
 		{
-			variables: { generation, version: game },
+			variables: { generation },
 			fetchPolicy: "cache-and-network",
 			nextFetchPolicy: "cache-first",
 			onCompleted: (data) => {

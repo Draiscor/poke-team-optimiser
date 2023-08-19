@@ -1,5 +1,5 @@
 import { Chip } from "@mui/material";
-import { PokeType } from "../definitions";
+import { PokeType } from "../types/Pokemon";
 
 type Props = {
 	myType: PokeType;

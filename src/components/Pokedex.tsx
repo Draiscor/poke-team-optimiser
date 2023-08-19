@@ -4,7 +4,7 @@ import { IconButton, InputAdornment, Paper, TextField } from "@mui/material";
 import Grid from "@mui/material/Unstable_Grid2";
 import { ratio } from "fuzzball";
 import { useEffect, useState } from "react";
-import { PokeType, PokeTypeColours, Pokemon } from "../definitions";
+import Pokemon, { PokeType, PokeTypeColours } from "../types/Pokemon";
 import PokeCard from "./PokeCard";
 
 type PokeTypeResponse = {
@@ -44,7 +44,7 @@ interface Props {
 }
 
 const GET_GENERATION_POKEMON = gql`
-	query PokemonInGeneration($generation: Int!, $version: String!) {
+	query PokemonInGeneration($generation: Int!, $version: String) {
 		pokemon_v2_pokemon(
 			where: {
 				pokemon_v2_pokemonspecy: { generation_id: { _lte: $generation } }
@@ -212,7 +212,7 @@ const TYPE_MAP: { [ref: number]: PokeTypeColours } = {
 };
 
 function Pokedex(props: Props) {
-	const { generation, game: version } = props;
+	const { generation, game } = props;
 	const [pokemon, setPokemon] = useState<Pokemon[]>([]);
 	const [displayMons, setDisplayMons] = useState<Pokemon[]>([]);
 	const [search, setSearch] = useState<string>("");
@@ -220,7 +220,7 @@ function Pokedex(props: Props) {
 	const { loading, error } = useQuery<PokemonResponseData>(
 		GET_GENERATION_POKEMON,
 		{
-			variables: { generation, version },
+			variables: { generation, version: game },
 			fetchPolicy: "cache-and-network",
 			nextFetchPolicy: "cache-first",
 			onCompleted: (data) => {
@@ -302,7 +302,7 @@ function Pokedex(props: Props) {
 	}, [pokemon, search, setDisplayMons]);
 
 	if (loading) return null;
-	if (error) return `Error! ${error}`;
+	if (error) return `${error}`;
 
 	return (
 		<Paper

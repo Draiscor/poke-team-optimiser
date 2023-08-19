@@ -7,7 +7,7 @@ import {
 	Typography,
 } from "@mui/material";
 import { useState } from "react";
-import { Pokemon } from "../definitions";
+import Pokemon from "../types/Pokemon";
 import { getPokeImg } from "../utils";
 import TypePill from "./TypePill";
 

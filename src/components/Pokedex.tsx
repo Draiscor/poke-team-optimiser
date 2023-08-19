@@ -1,4 +1,4 @@
-import { gql, useLazyQuery, useQuery } from "@apollo/client";
+import { gql, useQuery } from "@apollo/client";
 import { ClearRounded, SearchRounded } from "@mui/icons-material";
 import { IconButton, InputAdornment, Paper, TextField } from "@mui/material";
 import Grid from "@mui/material/Unstable_Grid2";
@@ -7,70 +7,34 @@ import { useEffect, useState } from "react";
 import { PokeType, PokeTypeColours, Pokemon } from "../definitions";
 import PokeCard from "./PokeCard";
 
+type PokeTypeResponse = {
+	slot: number;
+	pokemon_v2_type: {
+		id: number;
+		name: string;
+		pokemon_v2_typeefficacies: {
+			damage_factor: number;
+			pokemonV2TypeByTargetTypeId: {
+				name: string;
+				generation_id: number;
+				id: number;
+			};
+		}[];
+	};
+};
+
 type PokemonResponseData = {
 	pokemon_v2_pokemon: {
 		id: number;
 		name: string;
-		pokemon_v2_encounters: {
-			pokemon_v2_locationarea: {
-				pokemon_v2_location: {
-					name: string;
-					pokemon_v2_region: {
-						name: string;
-					};
-				};
-			};
-			pokemon_v2_version: {
-				name: string;
-			};
-		}[];
 		pokemon_v2_pokemonspecy: {
 			evolves_from_species_id: number;
 			generation_id: number;
-			has_gender_differences: boolean;
 			is_legendary: boolean;
 			is_mythic: boolean;
 		};
-		pokemon_v2_pokemonsprites: {
-			sprites: string;
-		}[];
-		pokemon_v2_pokemontypes: {
-			slot: number;
-			pokemon_v2_type: {
-				id: number;
-				name: string;
-				pokemon_v2_typeefficacies: {
-					damage_factor: number;
-					pokemonV2TypeByTargetTypeId: {
-						name: string;
-						generation_id: number;
-						id: number;
-					};
-				}[];
-			};
-		}[];
-	}[];
-};
-
-type RetiredTypesResponseData = {
-	pokemon_v2_pokemon: {
-		id: number;
-		pokemon_v2_pokemontypepasts: {
-			pokemon_v2_type: {
-				generation_id: number;
-				id: number;
-				name: string;
-				pokemon_v2_typeefficacies: {
-					damage_factor: number;
-					pokemonV2TypeByTargetTypeId: {
-						name: string;
-						generation_id: number;
-						id: number;
-					};
-				}[];
-			};
-			slot: number;
-		}[];
+		pokemon_v2_pokemontypes: PokeTypeResponse[];
+		pokemon_v2_pokemontypepasts: PokeTypeResponse[];
 	}[];
 };
 
@@ -95,30 +59,11 @@ const GET_GENERATION_POKEMON = gql`
 		) {
 			id
 			name
-			pokemon_v2_encounters(
-				where: { pokemon_v2_version: { name: { _eq: $version } } }
-			) {
-				pokemon_v2_locationarea {
-					pokemon_v2_location {
-						name
-						pokemon_v2_region {
-							name
-						}
-					}
-				}
-				pokemon_v2_version {
-					name
-				}
-			}
 			pokemon_v2_pokemonspecy {
 				generation_id
-				has_gender_differences
 				evolves_from_species_id
 				is_legendary
 				is_mythical
-			}
-			pokemon_v2_pokemonsprites {
-				sprites
 			}
 			pokemon_v2_pokemontypes(
 				where: { pokemon_v2_type: { generation_id: { _lte: $generation } } }
@@ -149,14 +94,6 @@ const GET_GENERATION_POKEMON = gql`
 					}
 				}
 			}
-		}
-	}
-`;
-
-const GET_PREVIOUS_POKEMON_TYPES = gql`
-	query GetPokemonRetiredTypes($ids: [Int!], $generation: Int!) {
-		pokemon_v2_pokemon(where: { id: { _in: $ids } }) {
-			id
 			pokemon_v2_pokemontypepasts(
 				where: { generation_id: { _gte: $generation } }
 				order_by: { generation_id: asc, slot: asc }
@@ -280,10 +217,6 @@ function Pokedex(props: Props) {
 	const [displayMons, setDisplayMons] = useState<Pokemon[]>([]);
 	const [search, setSearch] = useState<string>("");
 
-	const [getPreviousTypes] = useLazyQuery<RetiredTypesResponseData>(
-		GET_PREVIOUS_POKEMON_TYPES
-	);
-
 	const { loading, error } = useQuery<PokemonResponseData>(
 		GET_GENERATION_POKEMON,
 		{
@@ -292,44 +225,57 @@ function Pokedex(props: Props) {
 			nextFetchPolicy: "cache-first",
 			onCompleted: (data) => {
 				const allPokemon = data.pokemon_v2_pokemon.map((poke): Pokemon => {
-					const pokeSprites = JSON.parse(
-						poke.pokemon_v2_pokemonsprites[0].sprites
-					);
+					const pokeTypes: PokeType[] = [];
+					if (poke.pokemon_v2_pokemontypes.length) {
+						pokeTypes.push(
+							...poke.pokemon_v2_pokemontypes.map((pokeType): PokeType => {
+								return {
+									colours: TYPE_MAP[pokeType.pokemon_v2_type.id],
+									id: pokeType.pokemon_v2_type.id,
+									name: pokeType.pokemon_v2_type.name,
+									superEffective:
+										pokeType.pokemon_v2_type.pokemon_v2_typeefficacies.map<{
+											id: number;
+											name: string;
+										}>((superEffect) => {
+											return {
+												id: superEffect.pokemonV2TypeByTargetTypeId.id,
+												name: superEffect.pokemonV2TypeByTargetTypeId.name,
+											};
+										}),
+								};
+							})
+						);
+					} else if (poke.pokemon_v2_pokemontypepasts.length) {
+						pokeTypes.push(
+							...poke.pokemon_v2_pokemontypepasts.map((pokeType): PokeType => {
+								return {
+									colours: TYPE_MAP[pokeType.pokemon_v2_type.id],
+									id: pokeType.pokemon_v2_type.id,
+									name: pokeType.pokemon_v2_type.name,
+									superEffective:
+										pokeType.pokemon_v2_type.pokemon_v2_typeefficacies.map<{
+											id: number;
+											name: string;
+										}>((superEffect) => {
+											return {
+												id: superEffect.pokemonV2TypeByTargetTypeId.id,
+												name: superEffect.pokemonV2TypeByTargetTypeId.name,
+											};
+										}),
+								};
+							})
+						);
+					}
 
 					return {
 						evolvesFrom: poke.pokemon_v2_pokemonspecy.evolves_from_species_id,
-						gendersVary: poke.pokemon_v2_pokemonspecy.has_gender_differences,
 						generation: poke.pokemon_v2_pokemonspecy.generation_id,
 						id: poke.id,
 						legendary: poke.pokemon_v2_pokemonspecy.is_legendary,
 						mythic: poke.pokemon_v2_pokemonspecy.is_mythic,
 						name: poke.name,
-						spawnLocations: poke.pokemon_v2_encounters.map(
-							(location) =>
-								`${location.pokemon_v2_locationarea.pokemon_v2_location.pokemon_v2_region.name} - ${location.pokemon_v2_locationarea.pokemon_v2_location.name}`
-						),
-						sprites: {
-							frontDefault: pokeSprites.front_default,
-							frontFemale: pokeSprites.front_female,
-							frontShiny: pokeSprites.front_shiny,
-							frontShinyFemale: pokeSprites.front_shiny_female,
-						},
-						types: poke.pokemon_v2_pokemontypes.map((pokeType): PokeType => {
-							return {
-								colours: TYPE_MAP[pokeType.pokemon_v2_type.id],
-								id: pokeType.pokemon_v2_type.id,
-								name: pokeType.pokemon_v2_type.name,
-								superEffective:
-									pokeType.pokemon_v2_type.pokemon_v2_typeefficacies.map(
-										(superEffect) => {
-											return {
-												id: superEffect.pokemonV2TypeByTargetTypeId.id,
-												name: superEffect.pokemonV2TypeByTargetTypeId.name,
-											};
-										}
-									),
-							};
-						}),
+						types: pokeTypes,
 					};
 				});
 				setPokemon([...allPokemon]);
@@ -354,77 +300,6 @@ function Pokedex(props: Props) {
 		});
 		setDisplayMons([...filteredMons]);
 	}, [pokemon, search, setDisplayMons]);
-
-	useEffect(() => {
-		const needTypeUpdates = pokemon.reduce<{ id: number; index: number }[]>(
-			(a, e, i) => {
-				if (!e.types.length) a.push({ id: e.id, index: i });
-				return a;
-			},
-			[]
-		);
-		getPreviousTypes({
-			variables: {
-				ids: needTypeUpdates.map((e) => e.id),
-				generation: generation,
-			},
-		}).then((response) => {
-			if (response.error) {
-				console.log(
-					`An error occurred when requesting previous types: ${response.error}`
-				);
-				return;
-			} else if (!response.data) {
-				console.log(`No data in the response! ${JSON.stringify(response)}`);
-				return;
-			}
-			const data = response.data;
-			const mons = [...data.pokemon_v2_pokemon];
-			const monTypes = mons.map<{ id: number; types: PokeType[] }>((mon) => {
-				return {
-					id: mon.id,
-					types: [
-						...mon.pokemon_v2_pokemontypepasts.map<PokeType>((pokeType) => {
-							return {
-								colours: TYPE_MAP[pokeType.pokemon_v2_type.id],
-								id: pokeType.pokemon_v2_type.id,
-								name: pokeType.pokemon_v2_type.name,
-								superEffective: [
-									...pokeType.pokemon_v2_type.pokemon_v2_typeefficacies.map(
-										(efficacy) => {
-											return {
-												id: efficacy.pokemonV2TypeByTargetTypeId.id,
-												name: efficacy.pokemonV2TypeByTargetTypeId.name,
-											};
-										}
-									),
-								],
-							};
-						}),
-					],
-				};
-			});
-
-			const updatedMons = [
-				...pokemon.map((mon) => {
-					const neededUpdate = needTypeUpdates.find(
-						(update) => update.id === mon.id
-					);
-					if (!neededUpdate) return mon;
-
-					const pokeTypes = monTypes.find((types) => types.id === mon.id);
-					if (!pokeTypes) return mon;
-
-					return {
-						...mon,
-						types: [...pokeTypes.types],
-					};
-				}),
-			];
-
-			setPokemon(updatedMons);
-		});
-	}, [generation, getPreviousTypes, pokemon, setPokemon]);
 
 	if (loading) return null;
 	if (error) return `Error! ${error}`;

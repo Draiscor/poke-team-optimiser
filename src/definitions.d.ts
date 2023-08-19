@@ -17,14 +17,14 @@ type PokeSprites = {
 
 type Pokemon = {
 	evolvesFrom: number;
-	gendersVary: boolean;
+	gendersVary?: boolean;
 	generation: number;
 	id: number;
 	legendary: boolean;
 	mythic: boolean;
 	name: string;
-	spawnLocations: string[];
-	sprites: PokeSprites;
+	spawnLocations?: string[];
+	sprites?: PokeSprites;
 	types: PokeType[];
 };
 

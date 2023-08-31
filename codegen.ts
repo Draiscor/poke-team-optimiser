@@ -8,11 +8,11 @@ const config: CodegenConfig = {
 			preset: "client",
 			plugins: [],
 			presetConfig: {
-				gqlTagName: "gql",
-			},
-		},
+				gqlTagName: "gql"
+			}
+		}
 	},
-	ignoreNoDocuments: true,
+	ignoreNoDocuments: true
 };
 
 export default config;

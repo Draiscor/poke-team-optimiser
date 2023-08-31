@@ -1,0 +1,17 @@
+{
+    "useTabs": true,
+    "arrowParens": "avoid",
+    "trailingComma": "none",
+    "bracketSpacing": true,
+    "singleQuote": false,
+    "overrides": [
+        {
+            "files": ".prettierrc",
+            "options": { "parser": "json" }
+        },
+        {
+            "files": ".hintrc",
+            "options": { "parser": "json" }
+        }
+    ]
+}

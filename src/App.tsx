@@ -1,5 +1,13 @@
 import { gql, useQuery } from "@apollo/client";
-import { CssBaseline, FormControl, InputLabel, MenuItem, Select, ThemeProvider, createTheme } from "@mui/material";
+import {
+	CssBaseline,
+	FormControl,
+	InputLabel,
+	MenuItem,
+	Select,
+	ThemeProvider,
+	createTheme
+} from "@mui/material";
 import { useEffect, useState } from "react";
 import "./App.css";
 import Pokedex from "./components/Pokedex";
@@ -52,29 +60,29 @@ function App() {
 
 	useEffect(() => {
 		const query = window.matchMedia("(prefers-color-scheme: dark)");
-		query.addEventListener("change", (event) => setDark(event.matches));
+		query.addEventListener("change", event => setDark(event.matches));
 		setDark(query.matches);
-	}, [setDark])
+	}, [setDark]);
 
 	const { loading, error } = useQuery<{
 		pokemon_v2_version: VersionResponseData[];
 	}>(GET_GAME_VERSIONS, {
 		fetchPolicy: "cache-and-network",
 		nextFetchPolicy: "cache-first",
-		onCompleted: (data) => {
+		onCompleted: data => {
 			const allVersions = [
-				...data.pokemon_v2_version.map((version) => {
+				...data.pokemon_v2_version.map(version => {
 					return {
 						generation: version.pokemon_v2_versiongroup.generation_id,
 						id: version.id,
 						name: version.name,
-						order: version.pokemon_v2_versiongroup.order,
+						order: version.pokemon_v2_versiongroup.order
 					};
-				}),
+				})
 			];
 			setVersions(allVersions);
 			setGame(allVersions[0]);
-		},
+		}
 	});
 
 	if (loading) return null;
@@ -105,17 +113,17 @@ function App() {
 								PaperProps: {
 									style: {
 										maxHeight: 48 * 4.5 + 8,
-										width: 250,
-									},
-								},
+										width: 250
+									}
+								}
 							}}
-							onChange={(event) =>
+							onChange={event =>
 								setGame(
-									versions.find((version) => version.id === event.target.value)
+									versions.find(version => version.id === event.target.value)
 								)
 							}
 						>
-							{versions.map((version) => (
+							{versions.map(version => (
 								<MenuItem key={version.id} value={version.id}>
 									{`${version.name[0].toUpperCase()}${version.name.slice(1)}`}
 								</MenuItem>

@@ -12,7 +12,11 @@ function TypePill(props: Props) {
 		<Chip
 			label={myType.name}
 			size="medium"
-			sx={{ bgcolor: myType.colours.colour, color: myType.colours.textColour, width: 100 }}
+			sx={{
+				bgcolor: myType.colours.colour,
+				color: myType.colours.textColour,
+				width: 100
+			}}
 		/>
 	);
 }

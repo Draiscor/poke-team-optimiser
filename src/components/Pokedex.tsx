@@ -131,84 +131,84 @@ const GET_GENERATION_POKEMON = gql`
 const TYPE_MAP: { [ref: number]: PokeTypeColours } = {
 	1: {
 		colour: "#A8A77A",
-		textColour: "#0F0F0F",
+		textColour: "#0F0F0F"
 	},
 	2: {
 		colour: "#C22E28",
-		textColour: "#ffffff",
+		textColour: "#ffffff"
 	},
 	3: {
 		colour: "#A98FF3",
-		textColour: "#1E1E1E",
+		textColour: "#1E1E1E"
 	},
 	4: {
 		colour: "#A33EA1",
-		textColour: "#ffffff",
+		textColour: "#ffffff"
 	},
 	5: {
 		colour: "#E2BF65",
-		textColour: "#693434",
+		textColour: "#693434"
 	},
 	6: {
 		colour: "#B6A136",
-		textColour: "#372525",
+		textColour: "#372525"
 	},
 	7: {
 		colour: "#A6B91A",
-		textColour: "#372C2C",
+		textColour: "#372C2C"
 	},
 	8: {
 		colour: "#735797",
-		textColour: "#ffffff",
+		textColour: "#ffffff"
 	},
 	9: {
 		colour: "#B7B7CE",
-		textColour: "#373737",
+		textColour: "#373737"
 	},
 	10: {
 		colour: "#EE8130",
-		textColour: "#1E1E1E",
+		textColour: "#1E1E1E"
 	},
 	11: {
 		colour: "#6390F0",
-		textColour: "#1E1818",
+		textColour: "#1E1818"
 	},
 	12: {
 		colour: "#7AC74C",
-		textColour: "#373030",
+		textColour: "#373030"
 	},
 	13: {
 		colour: "#F7D02C",
-		textColour: "#504646",
+		textColour: "#504646"
 	},
 	14: {
 		colour: "#F95587",
-		textColour: "#1E1818",
+		textColour: "#1E1818"
 	},
 	15: {
 		colour: "#96D9D6",
-		textColour: "#504040",
+		textColour: "#504040"
 	},
 	16: {
 		colour: "#6F35FC",
-		textColour: "#ffffff",
+		textColour: "#ffffff"
 	},
 	17: {
 		colour: "#705746",
-		textColour: "#ffffff",
+		textColour: "#ffffff"
 	},
 	18: {
 		colour: "#D685AD",
-		textColour: "#1E1E1E",
+		textColour: "#1E1E1E"
 	},
 	10001: {
 		colour: "#ffffff",
-		textColour: "#000000",
+		textColour: "#000000"
 	},
 	10002: {
 		colour: "#000000",
-		textColour: "#ffffff",
-	},
+		textColour: "#ffffff"
+	}
 };
 
 function Pokedex(props: Props) {
@@ -223,7 +223,7 @@ function Pokedex(props: Props) {
 			variables: { generation },
 			fetchPolicy: "cache-and-network",
 			nextFetchPolicy: "cache-first",
-			onCompleted: (data) => {
+			onCompleted: data => {
 				const allPokemon = data.pokemon_v2_pokemon.map((poke): Pokemon => {
 					const pokeTypes: PokeType[] = [];
 					if (poke.pokemon_v2_pokemontypes.length) {
@@ -237,12 +237,12 @@ function Pokedex(props: Props) {
 										pokeType.pokemon_v2_type.pokemon_v2_typeefficacies.map<{
 											id: number;
 											name: string;
-										}>((superEffect) => {
+										}>(superEffect => {
 											return {
 												id: superEffect.pokemonV2TypeByTargetTypeId.id,
-												name: superEffect.pokemonV2TypeByTargetTypeId.name,
+												name: superEffect.pokemonV2TypeByTargetTypeId.name
 											};
-										}),
+										})
 								};
 							})
 						);
@@ -257,12 +257,12 @@ function Pokedex(props: Props) {
 										pokeType.pokemon_v2_type.pokemon_v2_typeefficacies.map<{
 											id: number;
 											name: string;
-										}>((superEffect) => {
+										}>(superEffect => {
 											return {
 												id: superEffect.pokemonV2TypeByTargetTypeId.id,
-												name: superEffect.pokemonV2TypeByTargetTypeId.name,
+												name: superEffect.pokemonV2TypeByTargetTypeId.name
 											};
-										}),
+										})
 								};
 							})
 						);
@@ -275,12 +275,12 @@ function Pokedex(props: Props) {
 						legendary: poke.pokemon_v2_pokemonspecy.is_legendary,
 						mythic: poke.pokemon_v2_pokemonspecy.is_mythic,
 						name: poke.name,
-						types: pokeTypes,
+						types: pokeTypes
 					};
 				});
 				setPokemon([...allPokemon]);
 				setDisplayMons([...allPokemon]);
-			},
+			}
 		}
 	);
 
@@ -289,13 +289,18 @@ function Pokedex(props: Props) {
 			setDisplayMons([...pokemon]);
 			return;
 		}
-		const filteredMons = pokemon.filter((mon) => {
+		const filteredMons = pokemon.filter(mon => {
 			const nameMatch = ratio(search, mon.name) > 60;
-			const finalMatch =
-				nameMatch ||
-				mon.types.some((monType) => ratio(search, monType.name) > 60) ||
+			const typeMatch = mon.types.some(
+				monType => ratio(search, monType.name) > 60
+			);
+			const dexMatch = ratio(search, mon.id.toString().padStart(3, "0"));
+			const specialStatusMatch =
 				(mon.legendary && ratio(search, "legendary") > 60) ||
 				(mon.mythic && ratio(search, "mythic") > 60);
+
+			const finalMatch =
+				nameMatch || typeMatch || dexMatch || specialStatusMatch;
 			return finalMatch;
 		});
 		setDisplayMons([...filteredMons]);
@@ -310,13 +315,13 @@ function Pokedex(props: Props) {
 				display: "flex",
 				flexDirection: "column",
 				height: "88vh",
-				padding: 1,
+				padding: 1
 			}}
 		>
 			<TextField
 				fullWidth
 				value={search}
-				onChange={(event) => setSearch(event.target.value as string)}
+				onChange={event => setSearch(event.target.value as string)}
 				sx={{ mb: 2 }}
 				label="Search"
 				InputProps={{
@@ -329,7 +334,7 @@ function Pokedex(props: Props) {
 							) : null}
 							<SearchRounded />
 						</InputAdornment>
-					),
+					)
 				}}
 			/>
 			<Grid
@@ -338,7 +343,7 @@ function Pokedex(props: Props) {
 				columns={{ xs: 2, sm: 8, md: 12 }}
 				sx={{ width: "100%", overflowY: "auto" }}
 			>
-				{displayMons.map((poke) => (
+				{displayMons.map(poke => (
 					<Grid xs={4} key={poke.id}>
 						<PokeCard pokemon={poke} />
 					</Grid>

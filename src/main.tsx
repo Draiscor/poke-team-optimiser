@@ -6,7 +6,7 @@ import { ApolloClient, ApolloProvider, InMemoryCache } from "@apollo/client";
 
 const client = new ApolloClient({
 	uri: "https://beta.pokeapi.co/graphql/v1beta",
-	cache: new InMemoryCache(),
+	cache: new InMemoryCache()
 });
 
 ReactDOM.createRoot(document.getElementById("root")!).render(

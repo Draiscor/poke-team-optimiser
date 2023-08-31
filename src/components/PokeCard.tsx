@@ -4,7 +4,7 @@ import {
 	CardContent,
 	CardHeader,
 	Stack,
-	Typography,
+	Typography
 } from "@mui/material";
 import { useState } from "react";
 import Pokemon from "../types/Pokemon";
@@ -23,16 +23,16 @@ function PokeCard(props: Props) {
 		<CardActionArea
 			sx={{
 				minWidth: 150,
-				minHeight: 385,
+				minHeight: 385
 			}}
-			onClick={() => setCaught((current) => !current)}
+			onClick={() => setCaught(current => !current)}
 		>
 			<Card
 				elevation={3}
 				sx={{
 					border: caught ? "5px solid blue" : "",
 					minWidth: "inherit",
-					minHeight: "inherit",
+					minHeight: "inherit"
 				}}
 			>
 				<CardHeader
@@ -60,7 +60,7 @@ function PokeCard(props: Props) {
 						width="150"
 					/>
 					<Stack direction="row" spacing={3} justifyContent="center">
-						{pokemon.types.map((theType) => (
+						{pokemon.types.map(theType => (
 							<TypePill key={theType.id} myType={theType} />
 						))}
 					</Stack>
@@ -69,7 +69,7 @@ function PokeCard(props: Props) {
 							style={{
 								display: "flex",
 								justifyContent: "center",
-								marginTop: 10,
+								marginTop: 10
 							}}
 						>
 							<Typography variant="body1" sx={{ mt: 1 }}>

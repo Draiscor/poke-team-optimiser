@@ -294,7 +294,7 @@ function Pokedex(props: Props) {
 			const typeMatch = mon.types.some(
 				monType => ratio(search, monType.name) > 60
 			);
-			const dexMatch = ratio(search, mon.id.toString().padStart(3, "0"));
+			const dexMatch = ratio(search, mon.id.toString().padStart(3, "0")) > 80;
 			const specialStatusMatch =
 				(mon.legendary && ratio(search, "legendary") > 60) ||
 				(mon.mythic && ratio(search, "mythic") > 60);

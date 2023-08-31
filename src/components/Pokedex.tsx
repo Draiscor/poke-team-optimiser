@@ -290,11 +290,11 @@ function Pokedex(props: Props) {
 			return;
 		}
 		const filteredMons = pokemon.filter(mon => {
-			const nameMatch = ratio(search, mon.name) > 65;
+			const nameMatch = ratio(search, mon.name) > 50;
 			const typeMatch = mon.types.some(
-				monType => ratio(search, monType.name) > 65
+				monType => ratio(search, monType.name) > 70
 			);
-			const dexMatch = ratio(search, mon.id.toString().padStart(3, "0")) > 65;
+			const dexMatch = ratio(search, mon.id.toString().padStart(3, "0")) > 70;
 			const specialStatusMatch =
 				(mon.legendary && ratio(search, "legendary") > 65) ||
 				(mon.mythic && ratio(search, "mythic") > 65);
